@@ -48,20 +48,6 @@ iframe{
   border:0;
 }
 
-/* ===== DATA ===== */
-#validity{
-  position:absolute;
-  top:90px;
-  right:16px;
-  z-index:9999;
-  background:rgba(44,62,80,.9);
-  color:#fff;
-  padding:8px 12px;
-  border-radius:10px;
-  font-size:.85rem;
-  pointer-events:none;
-}
-
 /* ===== RADAR ===== */
 #radar{
   position:relative;
@@ -143,9 +129,7 @@ footer span{color:#f39c12;cursor:pointer;margin-left:16px}
 
 <!-- MAPA -->
 <div id="map">
-  <div id="validity">
-    🕒 Obowiązuje: <span id="dateFrom">—</span> – <span id="dateTo">—</span>
-  </div>
+  
 
   <iframe src="https://www.google.com/maps/d/u/0/embed?mid=14HDCFfrjPN5tPtiLMHG2dTiK6cctdKo"></iframe>
 </div>
@@ -236,12 +220,6 @@ footer span{color:#f39c12;cursor:pointer;margin-left:16px}
   <input id="login" placeholder="Login">
   <input id="password" type="password" placeholder="Hasło">
   <button onclick="loginAdmin()">Zaloguj</button>
-  <hr>
-  <div id="adminDates" style="display:none">
-    <input id="adminDateFrom" placeholder="Obowiązuje od">
-    <input id="adminDateTo" placeholder="Obowiązuje do">
-    <button onclick="saveValidity()">Zapisz datę</button>
-  </div>
 </div>
 
 <script>
@@ -289,47 +267,11 @@ function toggleAdmin(){
 function loginAdmin(){
   if(login.value===ADMIN_LOGIN && password.value===ADMIN_PASS){
     isAdmin=true;
-    adminDates.style.display="block";
     alert("Zalogowano jako admin");
-  }else alert("Błędne dane");
+  }else{
+    alert("Błędne dane");
+  }
 }
-function saveValidity(){
-  if(!isAdmin) return;
-
-  const from = adminDateFrom.value;
-  const to = adminDateTo.value;
-
-  fetch("/.netlify/functions/validity", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ from, to })
-  })
-  .then(() => {
-    dateFrom.textContent = from;
-    dateTo.textContent = to;
-    alert("✅ Data zapisana globalnie");
-  })
-  .catch(() => alert("❌ Błąd zapisu"));
-}
-
-
-  function loadValidity(){
-  fetch("/.netlify/functions/validity")
-    .then(res => res.json())
-    .then(d => {
-      if(d.from) dateFrom.textContent = d.from;
-      if(d.to) dateTo.textContent = d.to;
-    })
-    .catch(() => {
-      dateFrom.textContent = "—";
-      dateTo.textContent = "—";
-    });
-}
-
-window.addEventListener("load", loadValidity);
-
 </script>
 
 </body>
