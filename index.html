@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeteoPrzemo – Ostrzeżenia dla Wielkopolski</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f4f6f9;
+  overflow:hidden;
+}
+
+/* ===== HEADER ===== */
+header{
+  background:#2c3e50;
+  color:#fff;
+  padding:12px;
+  text-align:center;
+}
+header h1{margin:0;font-size:1.4rem}
+header button{
+  padding:6px 14px;
+  border:none;
+  background:#f39c12;
+  color:#fff;
+  border-radius:6px;
+  cursor:pointer;
+  margin:6px 4px 0;
+}
+
+/* ===== SEKCJE ===== */
+#map,#radar,#criteriaPage{
+  width:100%;
+  height:calc(100vh - 120px);
+  display:none;
+}
+#map{display:block;position:relative}
+#criteriaPage{overflow-y:auto}
+
+iframe{
+  width:100%;
+  height:100%;
+  border:0;
+}
+
+/* ===== DATA ===== */
+#validity{
+  position:absolute;
+  top:90px;
+  right:16px;
+  z-index:9999;
+  background:rgba(44,62,80,.9);
+  color:#fff;
+  padding:8px 12px;
+  border-radius:10px;
+  font-size:.85rem;
+  pointer-events:none;
+}
+
+/* ===== RADAR ===== */
+#radar{
+  position:relative;
+}
+.radar-switch{
+  position:absolute;
+  top:14px;
+  left:14px;
+  z-index:1000;
+  display:flex;
+  gap:8px;
+}
+.radar-switch button{
+  background:rgba(44,62,80,.9);
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  padding:8px 12px;
+  cursor:pointer;
+}
+
+/* ===== KRYTERIA ===== */
+.criteria-container{
+  width:90%;
+  max-width:950px;
+  margin:1.5rem auto;
+  background:#fff;
+  padding:26px;
+  border-radius:14px;
+}
+
+/* ===== FOOTER ===== */
+footer{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:#2c3e50;
+  color:#fff;
+  text-align:center;
+  padding:8px;
+  font-size:.85rem;
+}
+footer span{color:#f39c12;cursor:pointer;margin-left:16px}
+
+/* ===== ADMIN ===== */
+#adminPanel{
+  display:none;
+  position:fixed;
+  bottom:60px;
+  right:16px;
+  background:#fff;
+  padding:16px;
+  border-radius:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,.3);
+  width:260px;
+  z-index:2000;
+}
+#adminPanel input{width:100%;margin-bottom:8px;padding:8px}
+#adminPanel button{
+  width:100%;
+  background:#2c3e50;
+  color:#fff;
+  border:none;
+  padding:8px;
+  border-radius:8px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Ostrzeżenia – Wielkopolska</h1>
+  <button onclick="showMap()">🗺️ Mapa</button>
+  <button onclick="showRadar()">🌧️ Radar</button>
+  <button onclick="showCriteria()">📋 Kryteria</button>
+</header>
+
+<!-- MAPA -->
+<div id="map">
+  <div id="validity">
+    🕒 Obowiązuje: <span id="dateFrom">—</span> – <span id="dateTo">—</span>
+  </div>
+
+  <iframe src="https://www.google.com/maps/d/u/0/embed?mid=14HDCFfrjPN5tPtiLMHG2dTiK6cctdKo"></iframe>
+</div>
+
+<!-- RADAR -->
+<div id="radar">
+
+  <div class="radar-switch">
+    <button onclick="showWindy()">🌧️ Windy</button>
+    <button onclick="showOpady()">🌦️ Radar opadów</button>
+    <button onclick="showVentusky()">❄️ Ventusky</button>
+    <button onclick="showLightning()">⚡ Wyładowania</button>
+  </div>
+
+  <iframe id="radarWindy"
+    src="https://embed.windy.com/embed2.html?lat=52.4&lon=16.9&zoom=6&overlay=radar">
+  </iframe>
+
+  <iframe id="radarOpady"
+    src="https://radar-opadow.pl/"
+    style="display:none">
+  </iframe>
+
+  <iframe id="radarVentusky"
+    src="https://embed.ventusky.com/?p=52.1;19.1;6&l=radar"
+    style="display:none"
+    loading="lazy">
+  </iframe>
+
+  <iframe id="radarLightning"
+    src="https://maps.blitzortung.org/#6/52.1/17.0"
+    style="display:none"
+    loading="lazy">
+  </iframe>
+
+</div>
+
+<!-- KRYTERIA -->
+<div id="criteriaPage">
+  <div class="criteria-container">
+   <h2>⛈️ Burze</h2>
+<p>🟡 Wiatr do 70 km/h, deszcz do 20 mm, drobny grad</p>
+<p>🟠 Wiatr 80–90 km/h, deszcz 30–40 mm, grad do 4 cm</p>
+<p>🔴 Wiatr >90 km/h, deszcz >50 mm, grad >4 cm</p>
+
+<h2>💧 Intensywne opady deszczu</h2>
+<p>🟡 30–50 mm / 24 h</p>
+<p>🟠 40–65 mm / 24 h</p>
+<p>🔴 >65 mm / 24 h</p>
+
+<h2>🌨️ Intensywne opady śniegu</h2>
+<p>🟡 10–15 cm / 24 h</p>
+<p>🟠 15–25 cm / 24 h</p>
+<p>🔴 >25 cm / 24 h</p>
+
+<h2>☔ Opady marznące</h2>
+<p>🟡 Słabe </p>
+<p>🟠 Umiarkowane </p>
+<p>🔴 Silne </p>
+
+<h2>🌫️ Gęsta mgła</h2>
+<p>🟡 Widzialność poniżej 100 m</p>
+
+<h2>🌬️ Silny wiatr</h2>
+<p>🟡 65–80 km/h</p>
+<p>🟠 80–90 km/h</p>
+<p>🔴 >90 km/h</p>
+
+<h2>🥶 Silny mróz</h2>
+<p>🟡 −15 do −20°C</p>
+<p>🟠 −20 do −25°C</p>
+<p>🔴 poniżej −25°C</p>
+
+<h2>🌡️ Upał</h2>
+<p>🟡 30–33°C</p>
+<p>🟠 34–38°C</p>
+<p>🔴 >38°C</p>
+  </div>
+</div>
+
+<footer>
+© MeteoPrzemo – Pogoda w Wielkopolsce
+<span onclick="toggleAdmin()">Panel admina</span>
+</footer>
+
+<!-- ADMIN -->
+<div id="adminPanel">
+  <input id="login" placeholder="Login">
+  <input id="password" type="password" placeholder="Hasło">
+  <button onclick="loginAdmin()">Zaloguj</button>
+  <hr>
+  <div id="adminDates" style="display:none">
+    <input id="adminDateFrom" placeholder="Obowiązuje od">
+    <input id="adminDateTo" placeholder="Obowiązuje do">
+    <button onclick="saveValidity()">Zapisz datę</button>
+  </div>
+</div>
+
+<script>
+const map=document.getElementById("map");
+const radar=document.getElementById("radar");
+const criteriaPage=document.getElementById("criteriaPage");
+
+const radarWindy=document.getElementById("radarWindy");
+const radarOpady=document.getElementById("radarOpady");
+const radarVentusky=document.getElementById("radarVentusky");
+const radarLightning=document.getElementById("radarLightning");
+
+const ADMIN_LOGIN="MeteoPrzemoAdmin";
+const ADMIN_PASS="MPA20242520091";
+
+let isAdmin=false;
+
+/* SEKCJE */
+function hideAll(){
+  map.style.display="none";
+  radar.style.display="none";
+  criteriaPage.style.display="none";
+}
+function showMap(){hideAll();map.style.display="block"}
+function showRadar(){hideAll();radar.style.display="block"}
+function showCriteria(){hideAll();criteriaPage.style.display="block"}
+
+/* RADARY */
+function hideRadars(){
+  radarWindy.style.display="none";
+  radarOpady.style.display="none";
+  radarVentusky.style.display="none";
+  radarLightning.style.display="none";
+}
+function showWindy(){hideRadars();radarWindy.style.display="block"}
+function showOpady(){hideRadars();radarOpady.style.display="block"}
+function showVentusky(){hideRadars();radarVentusky.style.display="block"}
+function showLightning(){hideRadars();radarLightning.style.display="block"}
+
+/* ADMIN */
+function toggleAdmin(){
+  adminPanel.style.display =
+    adminPanel.style.display==="block"?"none":"block";
+}
+function loginAdmin(){
+  if(login.value===ADMIN_LOGIN && password.value===ADMIN_PASS){
+    isAdmin=true;
+    adminDates.style.display="block";
+    alert("Zalogowano jako admin");
+  }else alert("Błędne dane");
+}
+function saveValidity(){
+  if(!isAdmin) return;
+
+  const from = adminDateFrom.value;
+  const to = adminDateTo.value;
+
+  fetch("/.netlify/functions/validity", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ from, to })
+  })
+  .then(() => {
+    dateFrom.textContent = from;
+    dateTo.textContent = to;
+    alert("✅ Data zapisana globalnie");
+  })
+  .catch(() => alert("❌ Błąd zapisu"));
+}
+
+
+  function loadValidity(){
+  fetch("/.netlify/functions/validity")
+    .then(res => res.json())
+    .then(d => {
+      if(d.from) dateFrom.textContent = d.from;
+      if(d.to) dateTo.textContent = d.to;
+    })
+    .catch(() => {
+      dateFrom.textContent = "—";
+      dateTo.textContent = "—";
+    });
+}
+
+window.addEventListener("load", loadValidity);
+
+</script>
+
+</body>
+</html>
